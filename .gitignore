@@ -1,0 +1,11 @@
+# python compiled
+*.py[cod]
+
+# build files
+/build/
+
+# Sublime files
+*.sublime*
+
+# Data files
+*.h5

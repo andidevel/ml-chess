@@ -1,0 +1,24 @@
+#!/bin/sh
+# Shell script to download the public image dataset provided by:
+# https://github.com/daylen/chess-id
+#
+# Author: Anderson R. Livramento
+#
+BUILD_PATH="build/imageset"
+IMAGE_SET="chess_public_data"
+FILE_DATASET="$IMAGE_SET.zip"
+
+# First create the folders, if aren't exists yet.
+echo " "
+echo -n "Creating path: $BUILD_PATH... "
+mkdir -p $BUILD_PATH
+echo " [ Done ]"
+echo "Downloading image data set..."
+wget --output-document=$BUILD_PATH/$FILE_DATASET https://www.dropbox.com/s/618l4ddoykotmru/Chess%20ID%20Public%20Data.zip?dl=0
+echo "Done."
+echo "Extracting..."
+unzip $BUILD_PATH/$FILE_DATASET -d $BUILD_PATH
+echo "Done."
+echo "Building chess dataset..."
+# After extracting, a folder named "Chess ID Public Data" will be created into $BUILD_PATH
+./build_dataset.py "$BUILD_PATH/Chess ID Public Data"
