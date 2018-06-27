@@ -40,6 +40,7 @@ HDF5_DATAFILE = 'data/chess_dataset.h5'
 
 _90d_rotation_matrix = cv2.getRotationMatrix2D((SQUARE_SIDE_LENGTH / 2, SQUARE_SIDE_LENGTH / 2), 90, 1)
 
+
 def create_rotations(img_path):
     img_p = Path(img_path)
     if img_p.exists():
@@ -75,6 +76,9 @@ def make_hdf5_dataset(build_path, n_samples):
     x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH, 3)
     all_y = []
     print('  |-> Creating HDF5 dataset file...')
+    hdf5_data_p = Path(HDF5_DATAFILE).parent
+    if not hdf5_data_p.exists():
+        hdf5_data_p.mkdir(parents=True)
     hdf5_f = hdf5.File(HDF5_DATAFILE, 'w')
     dset_x = hdf5_f.create_dataset('chess_imgs', x_shape, dtype='uint8')
     k_sample = 0
