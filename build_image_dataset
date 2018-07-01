@@ -13,7 +13,7 @@ echo " "
 echo -n "Creating path: $BUILD_PATH... "
 mkdir -p $BUILD_PATH
 echo " [ Done ]"
-echo "Downloading image data set..."
+echo "Downloading image set..."
 wget --output-document=$BUILD_PATH/$FILE_DATASET https://www.dropbox.com/s/618l4ddoykotmru/Chess%20ID%20Public%20Data.zip?dl=0
 echo "Done."
 echo "Extracting..."
@@ -21,4 +21,4 @@ unzip $BUILD_PATH/$FILE_DATASET -d $BUILD_PATH
 echo "Done."
 echo "Building chess dataset..."
 # After extracting, a folder named "Chess ID Public Data" will be created into $BUILD_PATH
-./build_dataset.py "$BUILD_PATH/Chess ID Public Data"
+./build_dataset.py "$BUILD_PATH/Chess ID Public Data" --with-tests-rotate
