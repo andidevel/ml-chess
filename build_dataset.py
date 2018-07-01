@@ -103,11 +103,11 @@ def main(build_path, tests_rotate=False):
     build_p = Path(build_path)
     if build_p.exists():
         print(' -> Imageset path: ', str(build_p))
-        n_samples = samples_count(build_p)
-        print(' |-> Total samples: ', n_samples)
         if tests_rotate:
             # Make rotated test samples
             create_rotations(str(build_p.joinpath('output_test')))
+        n_samples = samples_count(build_p)
+        print(' |-> Total samples: ', n_samples)
         make_hdf5_dataset(build_p, n_samples)
 
 
