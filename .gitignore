@@ -8,4 +8,5 @@
 *.sublime*
 
 # Data files
+data/
 *.h5
