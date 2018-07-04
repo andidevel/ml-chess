@@ -21,22 +21,27 @@ class DataConfig(object):
                 return ds['name']
         return ''
 
-    def get_train(self, copy=True):
+    def get_train(self, n=None, copy=True):
         data_ds_name = self._get_dataset_name('train')
         labels_ds_name = self._get_dataset_name('labels_train')
         # Return X_train, Y_train
         if copy:
-            return (self.h5data[data_ds_name][:], self.h5data[labels_ds_name][:])
+            if n is None:
+                return (self.h5data[data_ds_name][:], self.h5data[labels_ds_name][:])
+            else:
+                return (self.h5data[data_ds_name][:n], self.h5data[labels_ds_name][:n])
         return (self.h5data[data_ds_name], self.h5data[labels_ds_name])
 
-    def get_test(self, copy=True):
+    def get_test(self, n=None, copy=True):
         data_ds_name = self._get_dataset_name('test')
         labels_ds_name = self._get_dataset_name('labels_test')
         # Return X_test, Y_test
         if copy:
-            return (self.h5data[data_ds_name][:], self.h5data[labels_ds_name][:])
+            if n is None:
+                return (self.h5data[data_ds_name][:], self.h5data[labels_ds_name][:])
+            else:
+                return (self.h5data[data_ds_name][:n], self.h5data[labels_ds_name][:n])
         return (self.h5data[data_ds_name], self.h5data[labels_ds_name])
 
     def close_data_file(self):
         self.h5data.close()
-    
