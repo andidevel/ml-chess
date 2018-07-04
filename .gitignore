@@ -1,5 +1,6 @@
 # python compiled
 *.py[cod]
+__pycache__
 
 # build files
 /build/
@@ -10,3 +11,5 @@
 # Data files
 data/
 *.h5
+*.ipynb_*
+data.config

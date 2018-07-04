@@ -26,6 +26,16 @@ LABELS = [
     'wr'
 ]
 OUT_PATHS = ['output_train', 'output_test']
+DS_NAMES = {
+    'output_train': {
+        'data': 'chess_imgs_train',
+        'labels': 'chess_labels_train'
+    },
+    'output_test': {
+        'data': 'chess_imgs_test',
+        'labels': 'chess_labels_test'
+    }
+}
 HDF5_DATAFILE = 'data/chess_dataset.h5'
 # Structure:
 # build_path/
@@ -64,39 +74,45 @@ def iter_len(iter):
     return sum(1 for _ in iter)
 
 
-def samples_count(build_path):
+def samples_count(output_path):
     count = 0
-    for out_path in OUT_PATHS:
-        for lb in LABELS:
-            out_p = build_path.joinpath(out_path, lb)
-            count += iter_len(out_p.glob('*.jpg'))
+    for lb in LABELS:
+        out_p = output_path.joinpath(lb)
+        count += iter_len(out_p.glob('*.jpg'))
     return count
 
-def make_hdf5_dataset(build_path, n_samples):
-    x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH, 3)
-    all_y = []
+def make_hdf5_dataset(build_path):
     print('  |-> Creating HDF5 dataset file...')
     hdf5_data_p = Path(HDF5_DATAFILE).parent
     if not hdf5_data_p.exists():
         hdf5_data_p.mkdir(parents=True)
     hdf5_f = hdf5.File(HDF5_DATAFILE, 'w')
-    dset_x = hdf5_f.create_dataset('chess_imgs', x_shape, dtype='uint8')
-    k_sample = 0
     for out_path in OUT_PATHS:
+        n_samples = samples_count(build_path.joinpath(out_path))
+        print('    |-> ', out_path, ' :: ', DS_NAMES[out_path]['data'], ' ({} samples)'.format(n_samples))
+        x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH, 3)
+        y_shape = (n_samples, 2)
+        dset_x = hdf5_f.create_dataset(DS_NAMES[out_path]['data'], x_shape, dtype='uint8')
+        dset_y = hdf5_f.create_dataset(DS_NAMES[out_path]['labels'], y_shape, dtype='|S21')
+        k_sample = 0
         for i, lb in enumerate(LABELS):
             out_p = build_path.joinpath(out_path, lb)
             img_list = out_p.glob('*.jpg')
             for f in img_list:
                 img_matrix = cv2.imread(str(f))
                 dset_x[k_sample] = img_matrix
-                all_y.append([i, np.string_(lb)])
+                dset_y[k_sample] = [i, np.string_(lb)]
                 k_sample += 1
-    if all_y:
-        hdf5_f.create_dataset('chess_labels', data=np.array(all_y))
-        print('  |-> ', HDF5_DATAFILE, ' created.')
-    else:
-        print('  |-> ', HDF5_DATAFILE, ' NOT created! No samples found!')
+    # if all_y:
+    #     hdf5_f.create_dataset('chess_labels', data=np.array(all_y))
+    #     print('  |-> ', HDF5_DATAFILE, ' created.')
+    # else:
+    #     print('  |-> ', HDF5_DATAFILE, ' NOT created! No samples found!')
     hdf5_f.close()
+    if Path(HDF5_DATAFILE).exists():
+        print('  |-> HDF5 file ', HDF5_DATAFILE, ' created.')
+    else:
+        print('  |-> ', HDF5_DATAFILE, ' NOT created!')
 
 
 def main(build_path, tests_rotate=False):
@@ -106,9 +122,7 @@ def main(build_path, tests_rotate=False):
         if tests_rotate:
             # Make rotated test samples
             create_rotations(str(build_p.joinpath('output_test')))
-        n_samples = samples_count(build_p)
-        print(' |-> Total samples: ', n_samples)
-        make_hdf5_dataset(build_p, n_samples)
+        make_hdf5_dataset(build_p)
 
 
 if __name__ == '__main__':
