@@ -90,7 +90,7 @@ def make_hdf5_dataset(build_path):
     for out_path in OUT_PATHS:
         n_samples = samples_count(build_path.joinpath(out_path))
         print('    |-> ', out_path, ' :: ', DS_NAMES[out_path]['data'], ' ({} samples)'.format(n_samples))
-        x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH, 3)
+        x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH)
         y_shape = (n_samples, 2)
         dset_x = hdf5_f.create_dataset(DS_NAMES[out_path]['data'], x_shape, dtype='uint8')
         dset_y = hdf5_f.create_dataset(DS_NAMES[out_path]['labels'], y_shape, dtype='|S21')
@@ -99,7 +99,7 @@ def make_hdf5_dataset(build_path):
             out_p = build_path.joinpath(out_path, lb)
             img_list = out_p.glob('*.jpg')
             for f in img_list:
-                img_matrix = cv2.imread(str(f))
+                img_matrix = cv2.imread(str(f), 0)
                 dset_x[k_sample] = img_matrix
                 dset_y[k_sample] = [i, np.string_(lb)]
                 k_sample += 1
