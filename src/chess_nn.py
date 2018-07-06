@@ -4,6 +4,7 @@ Strongly based on:
 http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/
 """
 import keras
+import numpy as np
 
 from keras.layers import (
     Dense,
@@ -90,3 +91,34 @@ def train(model, X, y, X_test=None, y_test=None):
 def score(model, X, y):
     x_test, y_test = prepare_samples(X, y)
     return model.evaluate(x_test, y_test, verbose=0)
+
+#### By Joao V. Laitano
+def random_sampling(X, Y, k):
+    x=[]
+    y=[]
+    prop = k/10360
+    labels, label_count = np.unique(Y, return_counts=True)
+    l_c_prop = np.round(label_count*prop)
+    for i in range(len(LABELS)):
+        n = []
+        j = 0
+        while len(n) != (l_c_prop[i]):
+            if Y[j] == i:
+                n += [X[j]]
+                j += 1
+                y += [i]
+            else:
+                j += 1
+        x+=n
+    x = np.array(x)
+    y = np.array(y)
+    x, y = random_sampling_helper(x, y)
+    return x,y
+
+
+def random_sampling_helper(X, Y):
+    size = X.shape[0]
+    idx = np.random.choice(np.arange(X.shape[0]), X.shape[0], replace=False)
+    x_sample = X[idx]
+    y_sample = Y[idx]
+    return x_sample, y_sample
