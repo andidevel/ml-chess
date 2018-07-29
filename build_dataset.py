@@ -91,9 +91,9 @@ def make_hdf5_dataset(build_path):
         n_samples = samples_count(build_path.joinpath(out_path))
         print('    |-> ', out_path, ' :: ', DS_NAMES[out_path]['data'], ' ({} samples)'.format(n_samples))
         x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH)
-        y_shape = (n_samples, 2)
+        y_shape = (n_samples, 1)
         dset_x = hdf5_f.create_dataset(DS_NAMES[out_path]['data'], x_shape, dtype='uint8')
-        dset_y = hdf5_f.create_dataset(DS_NAMES[out_path]['labels'], y_shape, dtype='|S21')
+        dset_y = hdf5_f.create_dataset(DS_NAMES[out_path]['labels'], y_shape, dtype='uint8')
         k_sample = 0
         for i, lb in enumerate(LABELS):
             out_p = build_path.joinpath(out_path, lb)
@@ -101,7 +101,7 @@ def make_hdf5_dataset(build_path):
             for f in img_list:
                 img_matrix = cv2.imread(str(f), 0)
                 dset_x[k_sample] = img_matrix
-                dset_y[k_sample] = [i, np.string_(lb)]
+                dset_y[k_sample] = [i]
                 k_sample += 1
     # if all_y:
     #     hdf5_f.create_dataset('chess_labels', data=np.array(all_y))
