@@ -10,6 +10,7 @@ import h5py as hdf5
 
 
 SQUARE_SIDE_LENGTH = 227
+IMG_DEEP = 3
 LABELS = [
     'bb',
     'bk',
@@ -36,7 +37,7 @@ DS_NAMES = {
         'labels': 'chess_labels_test'
     }
 }
-HDF5_DATAFILE = 'data/chess_dataset.h5'
+HDF5_DATAFILE = 'data/chess_dataset-rgb.h5'
 # Structure:
 # build_path/
 #     output_train/
@@ -90,7 +91,7 @@ def make_hdf5_dataset(build_path):
     for out_path in OUT_PATHS:
         n_samples = samples_count(build_path.joinpath(out_path))
         print('    |-> ', out_path, ' :: ', DS_NAMES[out_path]['data'], ' ({} samples)'.format(n_samples))
-        x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH)
+        x_shape = (n_samples, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH, IMG_DEEP)
         y_shape = (n_samples, 1)
         dset_x = hdf5_f.create_dataset(DS_NAMES[out_path]['data'], x_shape, dtype='uint8')
         dset_y = hdf5_f.create_dataset(DS_NAMES[out_path]['labels'], y_shape, dtype='uint8')
@@ -99,7 +100,7 @@ def make_hdf5_dataset(build_path):
             out_p = build_path.joinpath(out_path, lb)
             img_list = out_p.glob('*.jpg')
             for f in img_list:
-                img_matrix = cv2.imread(str(f), 0)
+                img_matrix = cv2.imread(str(f))
                 dset_x[k_sample] = img_matrix
                 dset_y[k_sample] = [i]
                 k_sample += 1
