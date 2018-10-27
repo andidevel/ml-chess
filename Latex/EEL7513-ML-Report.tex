@@ -1,0 +1,190 @@
+\input{preamble.tex}
+
+\begin{document}
+
+\input{frontpage.tex}
+
+%%%%% Documento começa aqui %%%%%%%%%%%%%%%%%%%
+
+\section{Rede Convolucional para Reconhecimento de Peças de
+Xadrez}\label{rede-convolucional}
+
+    \subsection{Breve Introdução à Redes
+Convolucionais:}\label{breve-introducao-a-redes-convolucionais}
+
+Redes convolucionais diferem por não possuirem suas camadas
+convolucionais totalmente conectadas. Vide a figura 1:
+
+\begin{figure}[ht]
+\centering
+\includegraphics{tikz44.png}
+\caption{Figura 1: Redes Convolucionais}
+\end{figure}
+
+Isto torna particularmente interessante seu uso para imagens. Onde os
+neurônios de entradas são representados pela intensidade dos pixels, e
+no caso de imagens coloridas são acrescidas outras dimensões aos
+neurônios de entrada.
+
+Os pesos que mapeiam os neurônios de entrada para os de saída são
+matrizes que são chamadas de filtros, mascaras ou kernels. É possível
+modificar alguns parâmetros das camadas como o \emph{stride}, passo que
+o filtro dá ao fazer o mapeamento, \emph{padding} preenchimento que
+aumenta o tamanho das bordas da camada de entrada com 0's e 1's. Além
+disso é possível ter um filtro com mais de uma dimensão. Através desses
+parâmetros é possível definir qual será o tamanho da camada de saída.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{tikz46.png}
+\caption{Figura 2: Os filtros em uma rede convolucional}
+\end{figure}
+
+    \section{Arquitetura Inicial}\label{arquitetura-inicial}
+
+O projeto foi fortemente baseado no tutorial disponível em
+\href{http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/}{[1]} sobre \textbf{Redes
+Convolucionais} utilizando o \href{https://keras.io/}{keras}, e, portanto, inicialmente a
+arquitetura utilizada foi a mesma sugerida no post, conforme a figura 3.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{arch-01.png}
+\caption{Figura 3: Arquitetura Inicial}
+\end{figure}
+
+
+    \subsection{Projeto:}\label{projeto}
+
+O nosso projeto consistiu em fazer um sistema de reconhecimento de peças
+de xadres baseado em imagens já segmentadas. Dessa maneira utilizamos o
+conjunto de dados(imagens) disponível em:
+\href{https://www.dropbox.com/s/618l4ddoykotmru/Chess\%20ID\%20Public\%20Data.zip?dl=0}{
+https://www.dropbox.com/s/618l4ddoykotmru/Chess ID Public Data.zip?dl=0}
+
+Para fazer o projeto cogitamos inicialmente implementar o código na
+biblioteca Tensorflow, porém por comodidade decidimos implementar na
+biblioteca Keras por ser muito mais prático e inuitivo.
+
+O primeiro passo foi fazer um \textbf{data augmentation} no dataset de
+testes fazendo uma rotação nas imagens em 90, 180 e 270 graus,
+triplicando o número de amostras, além de converter as imagens
+\textbf{RGB} para \textbf{grayscale}, já que, pelo menos no xadrez
+oficial, as peças só podem ser pretas ou brancas. Para isso foi
+elaborado um script Python utilizando a biblioteca \textbf{OpenCV}. Após
+feito o aumento dos dados foram criadas também algumas funções de forma
+que as imagens fossem amostradas aleatóriamente para o conjunto de
+treinamento e testes.
+
+Assim já poderiamos começar o treinamento, o problema que nos deparamos
+foi o de que não possuiamos GPU e como o conjunto de dados era muito
+grande o tempo estimado para treinamento estava em mais de 30 horas.
+Após uma pesquisa resolvemos utilizar o \textbf{Google Colab}[3] e seu
+serviço de utilização de GPU remota, o que reduziu o tempo de
+treinamento para \textbf{10 minutos} utilizando a mesmo arquitetura
+inicial.
+
+A rede que usamos não teve um resultado tão bom inicialmente, atingindo uma
+acurácia de aproximadamente \textbf{26\%}, então tomamos a decisão de tornar a
+rede mais profunda. Feito isso a rede teve uma melhora significativa.
+Finalmente tentamos diversas técnicas diferentes com o intuito de ter um aumento
+significativo, onde observamos aumentos pequenos na performance com algumas
+técnicas bem sucedidas e outras técnicas resultaram em uma piora considerável.
+
+O melhor desempenho se deu ao incluirmos o \textbf{Batch Normalization} entre as
+camadas, entretanto não podíamos dizer que a melhora do desempenho foi devido a
+introdução do \textbf{Batch Normalization} pois não estávamos
+\emph{"normalizando"} a geração dos números aleatórios, de forma que a
+melhora pode ter sido proviniente de uma inicialização da rede com pesos
+melhores.
+
+Para termos uma certa garantia que a melhora do desempenho era devido as
+modificações na arquitetura da rede, bem como introdução de regulação,
+etc, adicionamos o seguinte código:
+
+\begin{lstlisting}[language=Python]
+# Algumas configurações para obter "resultados reproduzíveis"
+np.random.seed(42)
+rn.seed(54321)
+session_config = tf.ConfigProto(
+    intra_op_parallelism_threads=1,
+    inter_op_parallelism_threads=1
+)
+tf.set_random_seed(1234)
+sess = tf.Session(graph=tf.get_default_graph(), config=session_config)
+keras.backend.set_session(sess)
+
+\end{lstlisting}
+
+Assim, com a melhor acurácia em torno de \textbf{69\%}, a solução
+foi, a partir da arquitetura inicial, aprofundar a rede em mais camadas,
+adicionando o \textbf{Batch Normalization} entre as camadas, de forma
+que a arquitetura final ficou com 5 camadas \textbf{convolutivas} +
+\textbf{max pooling} + \textbf{batch normalization} + 1 camada
+\textbf{fully connected} com saída \textbf{softmax}. No treinamento
+iniciamos com 10 épocas, mas vimos que ao aumentar o número de épocas, o
+desempenho melhorava, mas como isso também aumentava o tempo de
+treinamento, deixamos o treinamento com 20 épocas na fase final.
+
+    \subsection{Resultados:}\label{resultados}
+
+    Utilizando a arquitetura inicial, rodando 10 épocas, obtivemos uma acurácia de \textbf{50\%}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{acc-01.png}
+\caption{Figura 4: Arquitetura inicial com 10 épocas, 50\% de acurácia}
+\end{figure}
+
+Após alguma modificações na rede e introduzindo \textbf{Batch Normalization}, a acurácia subiu para
+\textbf{68\%}, conforme visto na figura 5.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{acc-02-batch_n.png}
+\caption{Figura 5: Acurácia x Épocas com Batch Normalization}
+\end{figure}
+
+
+Assim, após mais alguns testes, aumentando o número de épocas para 20,
+chegamos a uma acurácia de \textbf{69,46\%}, vide figura 6.
+
+\begin{figure}[H]
+\centering
+\includegraphics{acc6946-padding_same.png}
+\caption{Figura 6: Acurácia x Épocas Arquitetura Final com 20 épocas, 69,46\% de acurácia}
+\end{figure}
+
+
+    \subsection{Conclusão:}\label{conclusao}
+
+Durante o processo de adequação da rede, percebemos que, enquanto não \emph{"normalizamos"}
+a geração dos números aleatórios, estava bem complicado construir uma arquitetura
+que fosse satisfatória, pois ao treinar a mesma arquitetura mais de uma vez, obtíamos
+resultados bem diferentes, então, esse foi um passo importante no projeto para que
+pudéssemos obter resultados mais consistentes e que refletiam as modificações que
+estávamos fazendo na arquitetura da rede.
+
+Também podemos comprovar que quanto mais profunda a rede, quanto mais camadas convolutivas
+são acrescentadas à rede, isso reflete de maneira significativa no desempenho da mesma.
+
+Ainda há espaço para melhoramentos no projeto, como a inclusão de \emph{"Regulação"}, pois
+percebemos que com o passar das \emph{épocas}, a rede vai aprendendo muito bem o conjunto
+de treinamento mas não tem o mesmo desempenho suave no conjunto de testes.
+
+    % Add a bibliography block to the postdoc
+
+    \section{Referências:}\label{referencias}
+
+[1] Tutorial Redes Convolucionais utilizando
+Keras:
+\href{http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/}{
+http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/}\\
+
+[2] Neural Networks and Deep Learning, Michael Nielsen:
+\href{http://neuralnetworksanddeeplearning.com/}{http://neuralnetworksanddeeplearning.com/}\\
+
+[3] Google Colab:
+\href{https://colab.research.google.com}{https://colab.research.google.com}
+
+    \end{document}

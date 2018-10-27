@@ -4,6 +4,8 @@ __pycache__
 
 # build files
 /build/
+/Latex/build/
+/Latex/pdf/
 
 # Sublime files
 *.sublime*
