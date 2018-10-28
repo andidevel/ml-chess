@@ -40,6 +40,12 @@ parâmetros é possível definir qual será o tamanho da camada de saída.
 \caption{Figura 2: Os filtros em uma rede convolucional}
 \end{figure}
 
+        \subsection{Batch Normalization}\label{batch-normalization}
+
+\textbf{Batch Normalization}[4] é uma técnica de normalização de atributos que atua
+entre as camadas convolucionais. A idéia é fazer com que as entradas de qualquer
+camada tenha média zero e variância unitária.
+
     \section{Arquitetura Inicial}\label{arquitetura-inicial}
 
 O projeto foi fortemente baseado no tutorial disponível em
@@ -64,7 +70,7 @@ https://www.dropbox.com/s/618l4ddoykotmru/Chess ID Public Data.zip?dl=0}
 
 Para fazer o projeto cogitamos inicialmente implementar o código na
 biblioteca Tensorflow, porém por comodidade decidimos implementar na
-biblioteca Keras por ser muito mais prático e inuitivo.
+biblioteca Keras por ser muito mais prático e intuitivo.
 
 O primeiro passo foi fazer um \textbf{data augmentation} no dataset de
 testes fazendo uma rotação nas imagens em 90, 180 e 270 graus,
@@ -81,7 +87,7 @@ foi o de que não possuiamos GPU e como o conjunto de dados era muito
 grande o tempo estimado para treinamento estava em mais de 30 horas.
 Após uma pesquisa resolvemos utilizar o \textbf{Google Colab}[3] e seu
 serviço de utilização de GPU remota, o que reduziu o tempo de
-treinamento para \textbf{10 minutos} utilizando a mesmo arquitetura
+treinamento para \textbf{10 minutos} utilizando a mesma arquitetura
 inicial.
 
 A rede que usamos não teve um resultado tão bom inicialmente, atingindo uma
@@ -160,13 +166,14 @@ chegamos a uma acurácia de \textbf{69,46\%}, vide figura 6.
 
 Durante o processo de adequação da rede, percebemos que, enquanto não \emph{"normalizamos"}
 a geração dos números aleatórios, estava bem complicado construir uma arquitetura
-que fosse satisfatória, pois ao treinar a mesma arquitetura mais de uma vez, obtíamos
+que fosse satisfatória, pois ao treinar a mesma arquitetura mais de uma vez, obtínhamos
 resultados bem diferentes, então, esse foi um passo importante no projeto para que
 pudéssemos obter resultados mais consistentes e que refletiam as modificações que
 estávamos fazendo na arquitetura da rede.
 
 Também podemos comprovar que quanto mais profunda a rede, quanto mais camadas convolutivas
-são acrescentadas à rede, isso reflete de maneira significativa no desempenho da mesma.
+são acrescentadas à rede, isso reflete de maneira significativa no desempenho da mesma,
+assim como aumenta significativamente o tempo de processamento.
 
 Ainda há espaço para melhoramentos no projeto, como a inclusão de \emph{"Regulação"}, pois
 percebemos que com o passar das \emph{épocas}, a rede vai aprendendo muito bem o conjunto
@@ -185,6 +192,8 @@ http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/}\\
 \href{http://neuralnetworksanddeeplearning.com/}{http://neuralnetworksanddeeplearning.com/}\\
 
 [3] Google Colab:
-\href{https://colab.research.google.com}{https://colab.research.google.com}
+\href{https://colab.research.google.com}{https://colab.research.google.com}\\
+
+[4] Ioffe, Sergey and Christian Szegedy. “Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.” ICML (2015).
 
     \end{document}
