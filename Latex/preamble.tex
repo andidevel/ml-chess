@@ -79,6 +79,23 @@
     \definecolor{ansi-white}{HTML}{C5C1B4}
     \definecolor{ansi-white-intense}{HTML}{A1A6B2}
 
+    % Colors for the Highlighting
+    \definecolor{hlgreen}{rgb}{0,0.6,0}
+    \definecolor{hlgray}{rgb}{0.5,0.5,0.5}
+    \definecolor{hlmauve}{rgb}{0.58,0,0.82}
+
+    % Defining the Highlighting
+    \lstset{
+        backgroundcolor=\color{white},
+        basicstyle=\footnotesize,
+        breaklines=true,
+        captionpos=b,
+        commentstyle=\color{hlgreen},
+        escapeinside={\%*}{*)},
+        keywordstyle=\color{blue},
+        stringstyle=\color{hlmauve},
+        frame=single
+    }
     % commands and environments needed by pandoc snippets
     % extracted from the output of `pandoc -s`
     \providecommand{\tightlist}{%

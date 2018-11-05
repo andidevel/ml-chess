@@ -12,8 +12,9 @@ Xadrez}\label{rede-convolucional}
     \subsection{Breve Introdução à Redes
 Convolucionais:}\label{breve-introducao-a-redes-convolucionais}
 
-Redes convolucionais diferem por não possuirem suas camadas
-convolucionais totalmente conectadas. Vide a figura 1:
+Redes convolucionais diferem por não possuirem suas camadas convolucionais totalmente
+conectadas, vide a figura 1, e são comumente usadas quando os dados de entrada
+representam imagens.
 
 \begin{figure}[ht]
 \centering
@@ -21,15 +22,15 @@ convolucionais totalmente conectadas. Vide a figura 1:
 \caption{Figura 1: Redes Convolucionais}
 \end{figure}
 
-Isto torna particularmente interessante seu uso para imagens. Onde os
-neurônios de entradas são representados pela intensidade dos pixels, e
-no caso de imagens coloridas são acrescidas outras dimensões aos
-neurônios de entrada.
+Isto torna particularmente interessante seu uso para imagens. Onde as
+unidades de entradas são representadas pela intensidade dos pixels, e
+no caso de imagens coloridas são acrescidas outras dimensões às
+unidades de entrada.
 
-Os pesos que mapeiam os neurônios de entrada para os de saída são
-matrizes que são chamadas de filtros, mascaras ou kernels. É possível
+Os pesos que mapeiam as unidades de entrada para as de saída são
+matrizes que são chamadas de filtros, máscaras ou kernels. É possível
 modificar alguns parâmetros das camadas como o \emph{stride}, passo que
-o filtro dá ao fazer o mapeamento, \emph{padding} preenchimento que
+o filtro dá ao fazer o mapeamento, o \emph{padding}, preenchimento que
 aumenta o tamanho das bordas da camada de entrada com 0's e 1's. Além
 disso é possível ter um filtro com mais de uma dimensão. Através desses
 parâmetros é possível definir qual será o tamanho da camada de saída.
@@ -45,6 +46,9 @@ parâmetros é possível definir qual será o tamanho da camada de saída.
 \textbf{Batch Normalization}[4] é uma técnica de normalização de atributos que atua
 entre as camadas convolucionais. A idéia é fazer com que as entradas de qualquer
 camada tenha média zero e variância unitária.
+
+A técnica de \textbf{Batch Normalization} permite que cada camada possa aprender
+um pouco mais, por si mesma, independentemente das outras camadas.
 
     \section{Arquitetura Inicial}\label{arquitetura-inicial}
 
@@ -119,7 +123,6 @@ session_config = tf.ConfigProto(
 tf.set_random_seed(1234)
 sess = tf.Session(graph=tf.get_default_graph(), config=session_config)
 keras.backend.set_session(sess)
-
 \end{lstlisting}
 
 Assim, com a melhor acurácia em torno de \textbf{69\%}, a solução
@@ -148,7 +151,7 @@ Após alguma modificações na rede e introduzindo \textbf{Batch Normalization},
 \begin{figure}[ht]
 \centering
 \includegraphics{acc-02-batch_n.png}
-\caption{Figura 5: Acurácia x Épocas com Batch Normalization}
+\caption{Figura 5: Adicionado o Batch Normalization}
 \end{figure}
 
 
@@ -158,7 +161,7 @@ chegamos a uma acurácia de \textbf{69,46\%}, vide figura 6.
 \begin{figure}[H]
 \centering
 \includegraphics{acc6946-padding_same.png}
-\caption{Figura 6: Acurácia x Épocas Arquitetura Final com 20 épocas, 69,46\% de acurácia}
+\caption{Figura 6: Arquitetura Final com 20 épocas, 69,46\% de acurácia}
 \end{figure}
 
 
