@@ -45,7 +45,15 @@ parâmetros é possível definir qual será o tamanho da camada de saída.
 
 \textbf{Batch Normalization}[4] é uma técnica de normalização de atributos que atua
 entre as camadas convolucionais. A idéia é fazer com que as entradas de qualquer
-camada tenha média zero e variância unitária.
+camada tenha média zero e variância unitária, entretanto, esses parâmetros
+(média e variância) podem ser alterados.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{batch_normalization_algorithm.png}
+\caption{Algoritmo do Batch Normalization}
+\end{figure}
+
 
 A técnica de \textbf{Batch Normalization} permite que cada camada possa aprender
 um pouco mais, por si mesma, independentemente das outras camadas.
