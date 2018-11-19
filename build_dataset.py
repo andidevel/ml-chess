@@ -10,7 +10,7 @@ import h5py as hdf5
 
 
 SQUARE_SIDE_LENGTH = 227
-IMG_DEEP = 3
+IMG_DEEP = 1
 LABELS = [
     'bb',
     'bk',
@@ -100,7 +100,8 @@ def make_hdf5_dataset(build_path):
             out_p = build_path.joinpath(out_path, lb)
             img_list = out_p.glob('*.jpg')
             for f in img_list:
-                img_matrix = cv2.imread(str(f))
+                # Images in grayscale
+                img_matrix = cv2.imread(str(f), 0)
                 dset_x[k_sample] = img_matrix
                 dset_y[k_sample] = [i]
                 k_sample += 1

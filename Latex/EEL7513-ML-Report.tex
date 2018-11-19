@@ -13,13 +13,13 @@ Xadrez}\label{rede-convolucional}
 Convolucionais:}\label{breve-introducao-a-redes-convolucionais}
 
 Redes convolucionais diferem por não possuirem suas camadas convolucionais totalmente
-conectadas, vide a figura 1, e são comumente usadas quando os dados de entrada
+conectadas, vide a figura \ref{fig:conv-net}, e são comumente usadas quando os dados de entrada
 representam imagens.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{tikz44.png}
-\caption{Figura 1: Redes Convolucionais}
+\caption{Redes Convolucionais}\label{fig:conv-net}
 \end{figure}
 
 Isto torna particularmente interessante seu uso para imagens. Onde as
@@ -38,20 +38,19 @@ parâmetros é possível definir qual será o tamanho da camada de saída.
 \begin{figure}[ht]
 \centering
 \includegraphics{tikz46.png}
-\caption{Figura 2: Os filtros em uma rede convolucional}
+\caption{Os filtros em uma rede convolucional}\label{fig:conv-net-filters}
 \end{figure}
 
         \subsection{Batch Normalization}\label{batch-normalization}
 
 \textbf{Batch Normalization}[4] é uma técnica de normalização de atributos que atua
 entre as camadas convolucionais. A idéia é fazer com que as entradas de qualquer
-camada tenha média zero e variância unitária, entretanto, esses parâmetros
-(média e variância) podem ser alterados.
+camada tenha média zero e variância unitária.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{batch_normalization_algorithm.png}
-\caption{Algoritmo do Batch Normalization}
+\caption{Algoritmo do Batch Normalization}\label{fig:batch-norm}
 \end{figure}
 
 
@@ -63,39 +62,61 @@ um pouco mais, por si mesma, independentemente das outras camadas.
 O projeto foi fortemente baseado no tutorial disponível em
 \href{http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/}{[1]} sobre \textbf{Redes
 Convolucionais} utilizando o \href{https://keras.io/}{keras}, e, portanto, inicialmente a
-arquitetura utilizada foi a mesma sugerida no post, conforme a figura 3.
+arquitetura utilizada foi a mesma sugerida no post, conforme a figura \ref{fig:arch-init}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{arch-01.png}
-\caption{Figura 3: Arquitetura Inicial}
+\caption{Arquitetura Inicial}\label{fig:arch-init}
 \end{figure}
 
 
-    \subsection{Projeto:}\label{projeto}
+    \subsection{Projeto}\label{projeto}
 
 O nosso projeto consistiu em fazer um sistema de reconhecimento de peças
 de xadres baseado em imagens já segmentadas. Dessa maneira utilizamos o
-conjunto de dados(imagens) disponível em:
-\href{https://www.dropbox.com/s/618l4ddoykotmru/Chess\%20ID\%20Public\%20Data.zip?dl=0}{
-https://www.dropbox.com/s/618l4ddoykotmru/Chess ID Public Data.zip?dl=0}
+conjunto de dados (imagens) disponível em [5].
 
 Para fazer o projeto cogitamos inicialmente implementar o código na
 biblioteca Tensorflow, porém por comodidade decidimos implementar na
 biblioteca Keras por ser muito mais prático e intuitivo.
 
-O primeiro passo foi fazer um \textbf{data augmentation} no dataset de
-testes fazendo uma rotação nas imagens em 90, 180 e 270 graus,
-triplicando o número de amostras, além de converter as imagens
-\textbf{RGB} para \textbf{grayscale}, já que, pelo menos no xadrez
-oficial, as peças só podem ser pretas ou brancas. Para isso foi
-elaborado um script Python utilizando a biblioteca \textbf{OpenCV}. Após
-feito o aumento dos dados foram criadas também algumas funções de forma
-que as imagens fossem amostradas aleatóriamente para o conjunto de
-treinamento e testes.
+    \subsubsection{Dataset}\label{dataset}
 
-Assim já poderiamos começar o treinamento, o problema que nos deparamos
-foi o de que não possuiamos GPU e como o conjunto de dados era muito
+O primeiro passo foi fazer o download do arquivo \emph{"Chess ID Public Data.zip"},
+disponível em [5], que consiste, após descompactado, em duas pastas, \textbf{output\_test}
+e \textbf{output\_train}, cada uma contendo amostras, em imagens \emph{JPEG} de 227x227 pixels,
+em \textbf{RGB}, de todas as peças do xadrez (inclusive os espaços em branco do tabuleiro),
+separadas por pastas, uma pasta para cada peça, por exemplo, uma pasta chamada \textbf{bb}
+contendo só imagens da peça bispo preto (\textbf{black bishop}), uma pasta chamada
+\textbf{wb} contendo só imagens da peça bispo branco (\textbf{white bishop}), e assim por diante.
+
+Verificamos, que, na pasta \textbf{output\_train} haviam \textbf{10.360} amostras, enquanto que
+na pasta \textbf{output\_test} haviam \textbf{185} amostras. Então resolvemos fazer
+um \textbf{data augmentation} no dataset de testes fazendo uma rotação nas imagens
+em 90, 180 e 270 graus, quadruplicando o número de amostras, que passou para \textbf{740}
+amostras, além de converter as imagens \textbf{RGB} para \textbf{grayscale}, já que,
+pelo menos no xadrez oficial, as peças só podem ser pretas ou brancas. Para isso
+foi elaborado um script Python, disponível em [6], utilizando a biblioteca \textbf{OpenCV}[7].
+
+Para facilitar a utilização, todo o conjunto de dados foi convertido para um arquivo
+no formato \textbf{HDF5}[8], em 4 (quatro) \textbf{datasets} distintos:
+
+\begin{itemize}
+    \item \textbf{chess\_imgs\_train}: matriz de shape (10360, 227, 227), com todas
+    as imagens de treinamento em grayscale.
+    \item \textbf{chess\_labels\_train}: matriz de shape (10360, 1), indicando a
+    classe de cada amostra de treinamento.
+    \item \textbf{chess\_imgs\_test}: matriz de shape (740, 227, 227), com todas as
+    imagens de teste em grayscale.
+    \item \textbf{chess\_labels\_test}: matriz de shape (740, 1), indicando a classe
+    de cada amostra de teste.
+\end{itemize}
+
+    \subsubsection{Arquitetura da Rede}
+
+Com o conjunto de dados preparado, já poderiamos começar o treinamento, o problema
+que nos deparamos foi o de que não possuíamos GPU e como o conjunto de dados era muito
 grande o tempo estimado para treinamento estava em mais de 30 horas.
 Após uma pesquisa resolvemos utilizar o \textbf{Google Colab}[3] e seu
 serviço de utilização de GPU remota, o que reduziu o tempo de
@@ -117,7 +138,7 @@ melhora pode ter sido proviniente de uma inicialização da rede com pesos
 melhores.
 
 Para termos uma certa garantia que a melhora do desempenho era devido as
-modificações na arquitetura da rede, bem como introdução de regulação,
+modificações na arquitetura da rede, bem como introdução de regularização,
 etc, adicionamos o seguinte código:
 
 \begin{lstlisting}[language=Python]
@@ -136,42 +157,48 @@ keras.backend.set_session(sess)
 Assim, com a melhor acurácia em torno de \textbf{69\%}, a solução
 foi, a partir da arquitetura inicial, aprofundar a rede em mais camadas,
 adicionando o \textbf{Batch Normalization} entre as camadas, de forma
-que a arquitetura final ficou com 5 camadas \textbf{convolutivas} +
+que a arquitetura final ficou com 5 camadas \textbf{convolucionais} +
 \textbf{max pooling} + \textbf{batch normalization} + 1 camada
-\textbf{fully connected} com saída \textbf{softmax}. No treinamento
-iniciamos com 10 épocas, mas vimos que ao aumentar o número de épocas, o
-desempenho melhorava, mas como isso também aumentava o tempo de
-treinamento, deixamos o treinamento com 20 épocas na fase final.
+\textbf{fully connected} com saída \textbf{softmax}, conforme a figura \ref{fig:arch-final}.
+No treinamento iniciamos com 10 épocas, mas vimos que ao aumentar o número de épocas, o
+desempenho melhorava, mas como isso também aumentava o tempo de treinamento, deixamos
+o treinamento com 20 épocas na fase final.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{arch-final.png}
+\caption{Arquitetura final, com Batch Normalization nas camadas convulucionais}\label{fig:arch-final}
+\end{figure}
 
     \subsection{Resultados:}\label{resultados}
 
-    Utilizando a arquitetura inicial, rodando 10 épocas, obtivemos uma acurácia de \textbf{50\%}.
+Utilizando a arquitetura inicial, mas adicionando mais camadas, rodando 10 épocas,
+obtivemos uma acurácia de \textbf{50\%}. O termo \emph{camada}, neste caso, significa
+o conjunto \textbf{camada convolucional} + \textbf{max pooling}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{acc-01.png}
-\caption{Figura 4: Arquitetura inicial com 10 épocas, 50\% de acurácia}
+\caption{5 camadas com 10 épocas, 50\% de acurácia}\label{fig:acc10}
 \end{figure}
 
 Após alguma modificações na rede e introduzindo \textbf{Batch Normalization}, a acurácia subiu para
-\textbf{68\%}, conforme visto na figura 5.
+\textbf{68\%}, conforme visto na figura \ref{fig:acc68}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{acc-02-batch_n.png}
-\caption{Figura 5: Adicionado o Batch Normalization}
+\caption{5 camadas, 10 épocas, adicionado o Batch Normalization}\label{fig:acc68}
 \end{figure}
 
-
 Assim, após mais alguns testes, aumentando o número de épocas para 20,
-chegamos a uma acurácia de \textbf{69,46\%}, vide figura 6.
+chegamos a uma acurácia de \textbf{69,46\%}, vide figura \ref{fig:acc69}.
 
 \begin{figure}[H]
 \centering
 \includegraphics{acc6946-padding_same.png}
-\caption{Figura 6: Arquitetura Final com 20 épocas, 69,46\% de acurácia}
+\caption{Arquitetura Final, 5 camadas, com Batch Normalization, 20 épocas, 69,46\% de acurácia}\label{fig:acc69}
 \end{figure}
-
 
     \subsection{Conclusão:}\label{conclusao}
 
@@ -186,7 +213,7 @@ Também podemos comprovar que quanto mais profunda a rede, quanto mais camadas c
 são acrescentadas à rede, isso reflete de maneira significativa no desempenho da mesma,
 assim como aumenta significativamente o tempo de processamento.
 
-Ainda há espaço para melhoramentos no projeto, como a inclusão de \emph{"Regulação"}, pois
+Ainda há espaço para melhoramentos no projeto, como a inclusão de \emph{"Regularização"}, pois
 percebemos que com o passar das \emph{épocas}, a rede vai aprendendo muito bem o conjunto
 de treinamento mas não tem o mesmo desempenho suave no conjunto de testes.
 
@@ -205,6 +232,19 @@ http://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/}\\
 [3] Google Colab:
 \href{https://colab.research.google.com}{https://colab.research.google.com}\\
 
-[4] Ioffe, Sergey and Christian Szegedy. “Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.” ICML (2015).
+[4] Ioffe, Sergey and Christian Szegedy. “Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.” ICML (2015).\\
+
+[5] Conjunto imagens segmentadas de peças de xadrez:
+\href{https://www.dropbox.com/s/618l4ddoykotmru/Chess\%20ID\%20Public\%20Data.zip?dl=0}{
+https://www.dropbox.com/s/618l4ddoykotmru/Chess ID Public Data.zip?dl=0}\\
+
+[6] EEL7513 class project:
+\href{https://github.com/andidevel/ml-chess}{https://github.com/andidevel/ml-chess}\\
+
+[7] OpenCV (Open Source Computer Vision Library):
+\href{https://opencv.org/}{https://opencv.org/}\\
+
+[8] Hierarchical Data Format:
+\href{https://en.wikipedia.org/wiki/Hierarchical_Data_Format}{https://en.wikipedia.org/wiki/Hierarchical\_Data\_Format}\\
 
     \end{document}
